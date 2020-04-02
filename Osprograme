@@ -1,0 +1,143 @@
+#include<stdio.h>
+#include<conio.h>
+#include<stdbool.h>
+#include<stdlib.h>
+#include<pthread.h>
+struct file
+{
+	int all[30];
+	int max[30];
+	int need[30];
+	int flag;
+};
+	
+int main()
+{
+	struct file f[30];
+	int fl;
+	int i,j,k,p,b,n,r,g,cnt=0,id,newr;//i,j,k,p are for loop variable and n is for number of process 
+									//and r is for number of resources and id is for process id
+	int avail[30],seq[30];
+	printf("Enter number of process:-");
+	scanf("%d",&n);
+	printf("Enter number of resources:-");
+	scanf("%d",&r);
+	for(i=0;i<n;i++)//this loop is for process id i.e i=0 means P0 , when i=1 means P1 etc.
+	{
+		printf("Enter details of P%d",i);
+		printf("\nEnter allocation\t---\t");
+		for (j=0;j<r;j++)
+		{
+			scanf("%d",&f[i].all[j]);
+		}
+		printf("Enter Max\t\t---\t");
+		for(j=0;j<r;j++)
+		{
+			scanf("%d",&f[i].max[j]);
+		}
+		f[i].flag=0;
+	}
+	printf("Enter the available Process\t--\t");
+	for(i=0;i<r;i++)//here this loop is available resources as i.e we have 3 resources
+					// so whem i=0 it will denote A which is resource no 1.
+	{
+		scanf("%d",&avail[i]);
+	}
+	printf("Enter New Request Details---\n");
+	printf("Enter Process id--");
+	scanf("%d",&id);
+	printf("Enter Request for Resource---\t");
+	for(i=0;i<r;i++)//for no. of resources
+	{
+		scanf("%d",&newr);
+		f[id].all[i]=f[id].all[i]+newr;
+		avail[i]=avail[i]-newr;	
+	}
+	//this loop is for finding the need values
+	for(i=0;i<n;i++)
+	{
+		for(j=0;j<r;j++)
+		{
+			f[i].need[j]=f[i].max[j]-f[i].all[j];
+			if(f[i].need[j]<0)
+			{
+				f[i].need[j]=0;
+			}
+		}
+	}
+	//this loop is to check whether it is safe or not 
+	cnt=0;
+	fl=0;
+	while(cnt!=n)
+	{
+		g=0;
+		for(j=0;j<n;j++)
+		{
+			if(f[i].flag==0)
+			{
+				b=0;
+				for(p=0;p<r;p++)
+				{
+					if(avail[p]>=f[i].need[p])
+					{
+						b=b+1;
+					}
+					else
+					{
+						b=b-1;
+					}
+				}
+				if(b==r)
+				{
+					printf("\nP%d is visited",j);
+					seq[fl++]=j;
+					f[j].flag=1;
+					for(k=0;k<r;k++)
+					{
+						avail[k]=avail[k]+f[j].all[k];
+					}
+					cnt=cnt+1;
+					printf("(");
+					for(k=0;k<r;k++)
+					{
+						printf("%d",avail[k]);
+					}
+					printf(")");
+					g=1;
+				}
+			}
+		}
+		if(g==0)
+		{
+			printf("\nRequest not Granted due to dead lock occured");
+			printf("\n System is in unsafe state");
+			goto y;
+		}
+	}
+	printf("\nSystem is in safe state");
+	printf("\nthe safe sequence is--(");
+	for(i=0;i<fl;i++)
+	{
+		printf("P%d ",seq[i]);
+	}
+	printf(")");
+	y:printf("\nProcess\t\Allocation\t\tMax\t\tNeed\n");//all the data are printed
+	for(i=0;i<n;i++)
+	{
+		printf("P%d",i);
+		for(j=0;j<r;j++)
+		{
+			printf("%6d",f[i].all[j]);
+		}
+		for(j=0;j<r;j++)
+		{
+			printf("%6d",f[i].max[j]);
+		}
+		for(j=0;j<r;j++)
+		{
+			printf("%6d",f[i].need[j]);
+		}
+		printf("\n");
+	}
+	getch();
+}
